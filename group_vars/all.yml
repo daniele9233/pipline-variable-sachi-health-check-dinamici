@@ -1,0 +1,244 @@
+---
+# Variabili comuni per tutti gli host
+
+# Dominio e credenziali
+rancher_domain: "ansible.app.iac-svil.almaviva.it"
+rancher_password: "DanielE9233???"
+
+# Versioni software
+helm_version: "v3.11.0"
+rancher_version: "2.11.2"
+
+# Configurazione disco
+vg_name: "vg_rancher"
+lv_name: "lv_rancher"
+rancher_mount_point: "/var/lib/rancher"
+filesystem_type: "xfs"
+mount_options: "defaults,noatime"
+
+# Certificati
+fullchain_pem_file: "fullchain.pem"
+privkey_pem_file: "privkey.pem"
+cacerts_pem_file: "cacerts.pem"
+remote_cert_path: "/root"
+
+# Cluster configuration
+cluster_name: "iacdevops"
+cluster_k8s_version: "v1.31.11+rke2r1"
+cluster_cni: "canal"
+ansibleSshHost: "localhost"
+
+# Master node configuration (per kubectl setup sui new_managers)
+master_node_ip: "10.116.82.131"
+master_node_user: "root"
+# master_node_name usa rancher_domain (evita duplicazioni)
+kubeconfig_path: "/root/.kube/config"
+
+# NFS VARS ####
+nfsHostname: "nfs-server-01"
+IPnfs: "10.116.82.136"
+nfs_server_ip: "{{ IPnfs }}"
+
+# Directory NFS
+nfs_exports:
+  - "/share/k8s"
+  - "/share/backup"
+k8s_dir: "k8s"
+
+helm_temp_dir: "/tmp/helm_install"
+helm_download_url: "https://get.helm.sh/helm-v3.11.0-linux-amd64.tar.gz"
+helm_binary_path: "/usr/local/bin/helm"
+
+# NFS Helm Repository
+nfs_helm_repo_name: "nfs"
+nfs_helm_repo_url: "https://kubernetes-sigs.github.io/nfs-subdir-external-provisioner"
+nfs_helm_repo_search_name: "nfs-subdir-external-provisioner"
+
+# NFS Provisioner Naming
+nfs_helm_release_prefix: "nfs-subdir-external-provisioner"
+nfs_namespace_prefix: "nfs-provisioner"
+nfs_storageclass_prefix: "nfs"
+
+nfs_helm_values_temp_path: "/tmp/nfs-helm-values"
+nfs_helm_chart_name: "nfs-subdir-external-provisioner"
+nfs_helm_timeout: "10m"
+nfs_helm_extra_args: "--atomic"
+nfs_rollout_timeout: "5m"
+# In group_vars/all.yml
+nfs_deployment_name: "nfs-subdir-external-provisioner"  # Cambiato
+nfs_pod_selector: "app=nfs-subdir-external-provisioner"  # Questo probabilmente è corretto
+
+# StorageClass Configuration
+nfs_make_storageclass_default: false
+nfs_access_mode: "ReadWriteMany"
+nfs_reclaim_policy: "Retain"  # o "Delete"
+
+# Provisioner Image Configuration
+nfs_provisioner_image_repository: "registry.k8s.io/sig-storage/nfs-subdir-external-provisioner"
+nfs_provisioner_image_tag: "v4.0.2"
+nfs_provisioner_image_pull_policy: "IfNotPresent"
+
+# Provisioner Resources
+nfs_provisioner_replica_count: 1
+nfs_provisioner_cpu_limit: "100m"
+nfs_provisioner_memory_limit: "128Mi"
+nfs_provisioner_cpu_request: "50m"
+nfs_provisioner_memory_request: "64Mi"
+
+# Cleanup Configuration
+nfs_cleanup_temp_files: true
+
+# Monitoring and Verification
+nfs_verify_deployment: true
+nfs_show_pod_logs: false  # Set to true for debugging
+nfs_wait_for_ready: true
+
+
+IPClientNFS1: "10.116.82.131"
+IPClientNFS2: "10.116.82.132"
+IPClientNFS3: "10.116.82.133"
+IPClientNFS4: "10.116.82.134"  
+IPClientNFS5: "10.116.82.135" 
+IPClientNFS8: "10.116.82.138"
+
+# Nuova lista client NFS (versione consigliata)
+nfs_clients:
+  - "10.116.82.131"  # cornelio.app.iac-svil.almaviva.it (master)
+  - "10.116.82.132"  # rke2-worker1 (worker)
+  - "10.116.82.135"  # rke2-worker2 (worker)
+  - "10.116.82.133"  # rke2-manager2 (new_manager)
+  - "10.116.82.138"  # rke2-worker3 
+
+# Variabili blocco Rancher
+nginx_server_name: "test.app.iac-svil.almaviva.it"
+nginx_ssl_cert_path: "/etc/nginx/cert/fullchain.pem"
+nginx_ssl_key_path: "/etc/nginx/cert/privkey.pem"
+
+# Variabili blocco Multi-Servizi
+multi_services_server_names:
+  - "kibana.app.iac-svil.almaviva.it"
+  - "grafana.app.iac-svil.almaviva.it"
+  - "prometheus.app.iac-svil.almaviva.it"
+  - "harbor.app.iac-svil.almaviva.it"
+  - "pgadmin.app.iac-svil.almaviva.it"
+  - "kafkaui.app.iac-svil.almaviva.it"
+
+multi_services_ssl_cert_path: "/etc/nginx/cert/fullchain.pem"
+multi_services_ssl_key_path: "/etc/nginx/cert/privkey.pem"
+
+# Upstream servers
+rancher_servers_https:
+  - server: "10.116.82.131:443"
+    max_fails: 3
+    fail_timeout: "5s"
+
+
+rancher_ingress_https:
+  - server: "10.116.82.132:443"
+    max_fails: 3
+    fail_timeout: "5s"
+
+rancher_ingress_https_1:
+  - server: "10.116.82.135:443"
+    max_fails: 3
+    fail_timeout: "5s"
+
+rancher_ingress_https_2:
+  - server: "10.116.82.138:443"
+    max_fails: 3
+    fail_timeout: "5s"
+
+# Configurazione Nginx
+nginx_user: "www-data"
+nginx_worker_processes: 2
+nginx_worker_rlimit_nofile: 40000
+nginx_client_max_body_size: "2G"
+
+# Path directory certificati
+nginx_cert_dir: "/etc/nginx/cert"
+
+# Path locali certificati
+local_ssl_cert_path: "files/fullchain.pem"
+local_ssl_key_path: "files/privkey.pem"
+
+# Storage Class Name (variabile globale)
+storage_class_name: "nfs-k8s"
+
+# Prometheus/Monitoring configuration
+prometheus_namespace: "monitoring"
+grafana_password: "SecureGrafanaPassword123!"  # CAMBIA QUESTA PASSWORD
+prometheus_retention: "15d"
+prometheus_storage_size: "5Gi"
+grafana_storage_size: "3Gi"
+alertmanager_storage_size: "2Gi"
+
+# Ingress configuration
+prometheus_create_ingress: true
+grafana_domain: "grafana.app.iac-svil.almaviva.it"
+prometheus_domain: "prometheus.app.iac-svil.almaviva.it"
+
+# Resource configurations (optional overrides)
+prometheus_cpu_requests: "1000m"
+prometheus_memory_requests: "2Gi"
+prometheus_cpu_limits: "2000m"
+prometheus_memory_limits: "4Gi"
+
+# Timeout configurations
+helm_timeout: "15m"
+pod_wait_timeout: "5m"  # Ridotto per evitare blocchi lunghi
+
+# ==============================================
+# PGADMIN CONFIGURATION
+# ==============================================
+
+# Namespace e immagine
+pgadmin_namespace: "pgadmin"
+pgadmin_image: "dpage/pgadmin4:8.8"
+
+# Credenziali di accesso
+pgadmin_username: "admin@example.local"  # Cambia con la tua email preferita
+pgadmin_password: "Cambiami123!"         # CAMBIA QUESTA PASSWORD
+
+# Configurazione servizio
+pgadmin_service_type: "ClusterIP"
+
+# Storage configuration
+pgadmin_storage_size: "2Gi"
+pgadmin_storage_class: "nfs-k8s"  # Usa la storage class NFS già configurata
+
+# Ingress configuration
+pgadmin_hostname: "pgadmin.app.iac-svil.almaviva.it"
+
+# Timeout configuration
+pgadmin_rollout_timeout: "5m"
+
+
+# Helm Chart Configuration
+prometheus_release_name: "prometheus"
+prometheus_chart_repo: "prometheus-community"
+prometheus_chart_name: "kube-prometheus-stack"
+prometheus_chart_repo_url: "https://prometheus-community.github.io/helm-charts"
+
+# Prometheus detailed configuration
+prometheus_scrape_interval: "1m"
+prometheus_evaluation_interval: "1m"
+prometheus_retention_size: "2GiB"
+
+# Components enable/disable
+kubestate_metrics_enabled: true
+node_exporter_enabled: true
+grafana_enabled: true
+alertmanager_enabled: true
+
+# Grafana hostname (usa la variabile già definita)
+grafana_hostname: "{{ grafana_domain }}"
+prometheus_hostname: "{{ prometheus_domain }}"
+
+# Crea ingress (usa la variabile già definita)
+create_ingress: "{{ prometheus_create_ingress }}"
+
+# Storage class (usa la variabile già definita)
+prometheus_storage_class: "{{ storage_class_name }}"
+
+# Timeout settings per i task
+prometheus_pod_wait_timeout: "{{ pod_wait_timeout }}"
